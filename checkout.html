@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo Exclusivo - Oferta Especial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .lp-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-lp {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero-section {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Countdown Banner */
+        .countdown-banner {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .hero-title {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .new-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .new-price span {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .btn-cta {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(to right, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            transition: transform 0.2s;
+            animation: bounce 2s infinite;
+            text-transform: uppercase;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-5px);
+            }
+
+            60% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .guarantee-badge {
+            width: 80px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        /* Social Proof */
+        .reviews-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .stars {
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .transformation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .transformation-img {
+            background: #334155;
+            height: 150px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+
+
+        .features-list {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-icon {
+            color: #10b981;
+        }
+
+        /* Sales Notification */
+        .sales-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            transform: translateY(150%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #10b981;
+        }
+
+        .sales-notification.active {
+            transform: translateY(0);
+        }
+
+        .sales-notification img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ec4899;
+        }
+
+        .sales-notification-content p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #334155;
+            line-height: 1.2;
+        }
+
+        .sales-notification-content strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .sales-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-overlay"></div>
+
+    <div class="lp-container">
+        <header class="header-lp">
+            AYUNO RESET <span style="color:var(--text-primary); font-weight:300;">| Oferta Final</span>
+        </header>
+
+        <div class="hero-section">
+            <div class="countdown-banner">
+                ⏳ OFERTA EXPIRA EN: <span id="timer">10:00</span>
+            </div>
+
+            <h1 class="hero-title">Pierde hasta 7 kilos en 21 días sin dejar de comer lo que te gusta</h1>
+
+            <p style="color:var(--text-secondary); margin-bottom:10px;">
+                Plan Metabólico Acelerado + Bonus Exclusivos
+            </p>
+
+            <div
+                style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; color: #d1fae5; line-height: 1.4;">
+                <i class="fas fa-check-circle" style="margin-right:5px;"></i> De acuerdo con tus respuestas,
+                <strong>calculamos tu IMC</strong> y este será tu resultado si sigues el método:
+            </div>
+
+            <div class="transformation-grid">
+                <!-- Placeholders for Before/After images -->
+                <div class="transformation-img" style="background: linear-gradient(45deg, #1e293b, #334155);">
+                    <img src="antes.jpg" alt="Transformación Antes"
+                        style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+                </div>
+                <div class="transformation-img" style="background: linear-gradient(45deg, #1e293b, #334155);">
+                    <img src="depois.jpg" alt="Transformación Después"
+                        style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-container"
+                style="margin: 25px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <h3 style="color:#10b981; font-size: 1rem; text-align: center; margin-bottom: 10px; font-weight: 600;">
+                    📉 Tu Camino al Éxito:</h3>
+                <div style="height: 200px;">
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const ctx = document.getElementById('weightChart').getContext('2d');
+                        const urlParams = new URLSearchParams(window.location.search);
+                        // Get weights from URL or default to illustrative values
+                        const start = parseFloat(urlParams.get('start')) || 80;
+                        const goal = parseFloat(urlParams.get('goal')) || 60;
+
+                        // Create gradient
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: ['Hoy', 'Semana 1', 'Semana 2', 'Semana 3'],
+                                datasets: [{
+                                    label: 'Peso (Kg)',
+                                    data: [start, start - ((start - goal) * 0.4), start - ((start - goal) * 0.8), goal],
+                                    borderColor: '#10b981',
+                                    backgroundColor: gradient,
+                                    borderWidth: 3,
+                                    pointBackgroundColor: '#10b981',
+                                    pointBorderColor: '#fff',
+                                    pointRadius: 4,
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false,
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        grid: { color: 'rgba(255,255,255,0.05)' },
+                                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                                    },
+                                    x: {
+                                        grid: { display: false },
+                                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <h2 class="section-title"
+                    style="color: #fbbf24; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
+                    ¡Quien
+                    tiene resultados, recomienda!</h2>
+                <div
+                    style="background: white; padding: 5px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); margin-top: 10px; transform: rotate(-1deg);">
+                    <img src="recomendacao.jpg" alt="Resultado Real"
+                        style="width: 100%; border-radius: 8px; display: block;">
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 10px;">Resultado real enviado por
+                    una alumna verificada.</p>
+
+                <div
+                    style="margin-top: 15px; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <p style="color: #cbd5e1; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500;">🔊 Escucha su
+                        testimonio:</p>
+                    <audio controls style="width: 100%; height: 40px; border-radius: 8px;">
+                        <source src="feedback.mp3" type="audio/mpeg">
+                        Tu navegador no soporta el elemento de audio.
+                    </audio>
+                </div>
+            </div>
+
+            <div class="price-box">
+                <p class="old-price">Precio Normal: $180.000 COP</p>
+                <div class="new-price">$38.742,00 <span>COP</span></div>
+                <p style="color:#10b981; font-size:0.9rem; margin-top:5px;">✅ ¡Súper descuento exclusivo, solo hoy!
+                    Finaliza pronto</p>
+            </div>
+
+
+
+            <button class="btn-cta"
+                onclick="window.location.href='https://pay.hotmart.com/I104553030U?checkoutMode=10'">
+                OBTENER MI PLAN POR $38.742,00 COP
+            </button>
+
+            <div
+                style="margin-top:30px; background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; align-items:center; gap:15px; border:1px solid rgba(251, 191, 36, 0.3);">
+                <div style="flex-shrink:0;">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M30 0L5.35898 8.125V30C5.35898 44.4062 15.6797 57.6562 30 60C44.3203 57.6562 54.641 44.4062 54.641 30V8.125L30 0Z"
+                            fill="#F59E0B" />
+                        <path
+                            d="M30 5.625L10.359 12.1875V30C10.359 41.5312 18.6641 52.125 30 54.375C41.3359 52.125 49.641 41.5312 49.641 30V12.1875L30 5.625Z"
+                            fill="#FBBF24" />
+                        <path
+                            d="M26.25 39.375L16.875 30L19.5312 27.3438L26.25 34.0312L39.2188 20.625L41.875 23.3125L26.25 39.375Z"
+                            fill="white" />
+                    </svg>
+                </div>
+                <div style="text-align:left;">
+                    <strong style="display:block; color:#fbbf24; font-size:1.1rem; margin-bottom:2px;">GARANTÍA BLINDADA
+                        DE 7 DÍAS</strong>
+                    <span style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4; display:block;">
+                        Prueba el programa sin riesgo. Si no ves resultados en una semana, te devolvemos el <strong>100%
+                            de tu dinero</strong>. Sin preguntas.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+
+
+            <h2 class="section-title">Lo que dicen ellas...</h2>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">MJ</div>
+                    <div>
+                        <strong style="display:block; color:white;">María José</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 2 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Enserio, por $38.742,00 no esperaba mucho, pero la guía es completísima. Ya bajé 1.5kg en mis
+                    primeros
+                    3
+                    días."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">CL</div>
+                    <div>
+                        <strong style="display:block; color:white;">Carla L.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 1 semana</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Lo mejor es que no paso hambre. El método de ayuno explicado aquí es muy fácil de seguir."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">AG</div>
+                    <div>
+                        <strong style="display:block; color:white;">Ana Garcia</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 5 dias</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Estaba escéptica, pero las recetas de los jugos detox son deliciosas. Vale totalmente la pena."
+                </p>
+            </div>
+
+            <!-- Nuevos Comentarios Agregados -->
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">VR</div>
+                    <div>
+                        <strong style="display:block; color:white;">Valentina R.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 3 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "¡Increíble! Nunca pensé que podría comer rico y bajar de peso. Llevo 3 días y ya me siento mucho
+                    menos hinchada."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">LT</div>
+                    <div>
+                        <strong style="display:block; color:white;">Laura Torres</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 1 semana</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "He probado pastillas, tés, de todo... y esto es lo único que me ha funcionado de verdad. ¡3 kilos
+                    menos en una semana!"
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">MP</div>
+                    <div>
+                        <strong style="display:block; color:white;">Mónica P.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 2 semanas</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Mi esposo no deja de decirme lo bien que me veo. Gracias por devolverme la confianza en mí misma."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">JS</div>
+                    <div>
+                        <strong style="display:block; color:white;">Juliana S.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 4 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Por $38.742,00 es un regalo. Solo las recetas ya valen el doble. ¡Estoy enamorada de los batidos!"
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">CM</div>
+                    <div>
+                        <strong style="display:block; color:white;">Camila M.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 6 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Soy mamá de dos y no tengo tiempo para gimnasio. Este método se adapta perfecto a mi rutina loca.
+                    ¡Gracias!"
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">DR</div>
+                    <div>
+                        <strong style="display:block; color:white;">Daniela R.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 10 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Mis pantalones viejos me volvieron a entrar hoy. Lloré de la emoción. Chicas, ¡sí se puede!"
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">PA</div>
+                    <div>
+                        <strong style="display:block; color:white;">Paula A.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 1 día</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Tenía miedo de que fuera una estafa, pero el acceso me llegó al correo en segundos. El material
+                    está súper bien explicado."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">SV</div>
+                    <div>
+                        <strong style="display:block; color:white;">Sara V.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 2 semanas</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Me siento con muchísima más energía. Antes vivía cansada. ¡Esto no es solo dieta, es salud!"
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">NR</div>
+                    <div>
+                        <strong style="display:block; color:white;">Natalia R.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 5 días</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Lo recomiendo 100%. He intentado keto, ayuno intermitente sola y fallaba. Con esta guía es
+                    facilísimo."
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="user-info">
+                    <div class="user-avatar">EG</div>
+                    <div>
+                        <strong style="display:block; color:white;">Elena G.</strong>
+                        <span style="font-size:0.8rem; color:#94a3b8;">Compró hace 3 semanas</span>
+                    </div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <p style="color:var(--text-secondary); font-size:0.95rem;">
+                    "Bajé 6 kilos en 21 días exactos. Cumplí mi meta para la boda de mi hermana. ¡Feliz es poco!"
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin: 40px 0;">
+            <button class="btn-cta"
+                onclick="window.location.href='https://pay.hotmart.com/I104553030U?checkoutMode=10'">
+                SÍ, QUIERO MI CUERPO SOÑADO
+            </button>
+            <p style="color:var(--text-secondary); font-size:0.8rem; margin-top:10px;">Oferta por tiempo limitado</p>
+        </div>
+
+        <footer style="text-align:center; margin-top:40px; color:#64748b; font-size:0.8rem;">
+            <p>© 2024 Ayuno Reset. Todos los derechos reservados.</p>
+            <p>Este sitio no es parte de Facebook o Facebook Inc.</p>
+        </footer>
+    </div>
+
+    <script src="analytics.js"></script>
+    <script>
+        // Track checkout load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof Analytics !== 'undefined') Analytics.trackCheckoutLoad();
+
+            // Track button clicks
+            document.querySelectorAll('.btn-cta').forEach(btn => {
+                const originalOnClick = btn.onclick;
+                btn.onclick = (e) => {
+                    if (typeof Analytics !== 'undefined') Analytics.trackPaymentClick();
+                    if (originalOnClick) originalOnClick.call(btn, e);
+                };
+            });
+        });
+
+        // Simple Countdown Timer Logic
+        let time = 600; // 10 minutes in seconds
+        const timerEl = document.getElementById('timer');
+
+        setInterval(() => {
+            if (time <= 0) return;
+            time--;
+
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+
+            timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }, 1000);
+        // Social Proof Notifications
+        const buyers = [
+            { name: 'Sofía R.', city: 'Bogotá' },
+            { name: 'Valentina M.', city: 'Medellín' },
+            { name: 'Isabella G.', city: 'Cali' },
+            { name: 'Camila T.', city: 'Barranquilla' },
+            { name: 'Mariana L.', city: 'Cartagena' },
+            { name: 'Gabriela P.', city: 'Bucaramanga' },
+            { name: 'Daniela S.', city: 'Pereira' },
+            { name: 'Andrea C.', city: 'Santa Marta' },
+            { name: 'Lucía V.', city: 'Ibagué' },
+            { name: 'Martina H.', city: 'Manizales' }
+        ];
+
+        const notification = document.createElement('div');
+        notification.className = 'sales-notification';
+        notification.innerHTML = `
+            <img src="" alt="Usuario">
+            <div class="sales-notification-content">
+                <p><strong></strong> acaba de inscribirse al Plan</p>
+                <div class="sales-time"></div>
+            </div>
+        `;
+        document.body.appendChild(notification);
+
+        function showNotification() {
+            const buyer = buyers[Math.floor(Math.random() * buyers.length)];
+            const timeAgo = Math.floor(Math.random() * 12) + 1; // 1-12 mins
+
+            notification.querySelector('img').src = `https://ui-avatars.com/api/?background=random&color=fff&name=${buyer.name}`;
+            notification.querySelector('strong').textContent = buyer.name;
+            notification.querySelector('.sales-time').textContent = `Hace ${timeAgo} min • ${buyer.city}`;
+
+            notification.classList.add('active');
+
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 5000);
+        }
+
+        // Cycle
+        setTimeout(() => {
+            showNotification();
+            setInterval(() => {
+                showNotification();
+            }, Math.floor(Math.random() * (20000 - 10000 + 1) + 10000)); // Random interval 10-20s
+        }, 3000);
+    </script>
+</body>
+
+</html>

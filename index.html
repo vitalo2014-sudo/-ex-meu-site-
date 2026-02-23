@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AYUNO RESET - Metabólico 360</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-overlay"></div>
+    <div class="app-container">
+        <header class="quiz-header">
+            <div class="brand-logo">AYUNO RESET <span>Metabólico 360</span></div>
+            <div class="progress-wrapper">
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div id="progress-bar" class="progress-bar-fill"></div>
+                    </div>
+                </div>
+                <div class="step-counter">
+                    Paso <span id="current-step">1</span> / <span id="total-steps">--</span>
+                </div>
+            </div>
+        </header>
+
+        <main id="quiz-content" class="quiz-content">
+            <!-- Dynamic Content -->
+        </main>
+    </div>
+    <script type="module" src="analytics.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
