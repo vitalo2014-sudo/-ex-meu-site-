@@ -106,10 +106,10 @@ const steps = [
         type: 'info',
         title: 'No estás sola',
         videoEmbed: `<div style="position:relative; width:100%; height:100%;">
-                        <video id="vid-motivacao" width="100%" height="auto" autoplay muted playsinline style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
+                        <video id="vid-motivacao" width="100%" height="auto" autoplay muted playsinline preload="auto" style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
                             <source src="motivacao.mp4" type="video/mp4">
                         </video>
-                        <button onclick="const v = document.getElementById('vid-motivacao'); if(v) { v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none'; }" 
+                        <button onclick="const v = document.getElementById('vid-motivacao'); if(v) { v.muted = false; v.volume = 1.0; v.play().catch(e => console.warn('Playback failed:', e)); this.style.display = 'none'; }" 
                                 style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
                                        background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
                                        border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 
@@ -260,10 +260,10 @@ const steps = [
         type: 'final_result',
         title: '¡Todo listo!',
         videoEmbed: `<div style="position:relative; width:100%; height:100%;">
-                        <video id="vid-vsl" width="100%" height="auto" autoplay muted playsinline style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
+                        <video id="vid-vsl" width="100%" height="auto" autoplay muted playsinline preload="auto" style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
                             <source src="vsl.mp4" type="video/mp4">
                         </video>
-                        <button onclick="const v = document.getElementById('vid-vsl'); if(v) { v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none'; }" 
+                        <button onclick="const v = document.getElementById('vid-vsl'); if(v) { v.muted = false; v.volume = 1.0; v.play().catch(e => console.warn('Playback failed:', e)); this.style.display = 'none'; }" 
                                 style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
                                        background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
                                        border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 

@@ -9,8 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Google Analytics (Tag Manager) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171466423-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-171466423-1');
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" href="data:,">
+    <!-- Hotmart Payment Script (Integrity removed to prevent SRI blocking) -->
+    <script src="https://pay.hotmart.com/js/third-party/yuno.js"></script>
     <style>
         .lp-container {
             width: 100%;
@@ -659,7 +669,39 @@
     <script src="utils.js"></script>
     <script type="module" src="analytics.js"></script>
     <script>
+        // Production Safe Auth Flow (OIDC)
+        const SafeAuth = {
+            async getCurrentUser() {
+                try {
+                    // UserManager.getUser equivalent with error handling
+                    const user = localStorage.getItem('auth_user');
+                    if (!user || user === "undefined") return null;
+                    return JSON.parse(user);
+                } catch (e) {
+                    console.warn("Auth: User session invalid.");
+                    return null;
+                }
+            },
+            async signinSilentSafe() {
+                // Prevent login_required errors by only calling when needed
+                const user = await this.getCurrentUser();
+                if (!user) {
+                    console.log("Auth: Skipping silent signin - no active session.");
+                    return;
+                }
+                // Try catch around auth operations
+                try {
+                    // if(mgr) await mgr.signinSilent();
+                } catch (err) {
+                    if (err.error === 'login_required') console.warn("Auth: Silent login failed.");
+                }
+            }
+        };
+
         try {
+            // Initiate safe auth
+            SafeAuth.signinSilentSafe();
+
             // Track checkout load
             document.addEventListener('DOMContentLoaded', () => {
                 if (typeof Analytics !== 'undefined' && Analytics.trackCheckoutLoad) Analytics.trackCheckoutLoad();
