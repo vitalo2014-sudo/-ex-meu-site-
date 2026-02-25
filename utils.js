@@ -7,7 +7,7 @@
     // 1. Safe JSON Engine (Prevents "undefined is not valid JSON")
     const _originalParse = JSON.parse;
     window.JSON.parse = function (val) {
-        if (val === undefined || val === null || val === "" || typeof val !== 'string') {
+        if (val === undefined || val === null || val === "" || typeof val !== 'string' || val === "undefined" || val === "null") {
             return null;
         }
         try {
@@ -42,18 +42,15 @@
 
     // 3. WebSocket Nullifier (Removes usage of WS as requested for static stability)
     window.WebSocket = function () {
-        console.warn("WebSocket disabled for static production stability.");
-        return {
-            send: () => { },
-            close: () => { },
-            addEventListener: () => { },
-            removeEventListener: () => { },
-            onopen: null,
-            onmessage: null,
-            onerror: null,
-            onclose: null
-        };
+        console.warn("WebSocket blocked.");
+        this.onopen = this.onmessage = this.onerror = this.onclose = null;
+        this.send = () => { };
+        this.close = () => { };
+        this.addEventListener = () => { };
+        this.removeEventListener = () => { };
+        return this;
     };
+    window.WebSocket.prototype = { send: () => { }, close: () => { }, addEventListener: () => { } };
 
     // 4. Global Error Protection
     window.SafeUtils = {

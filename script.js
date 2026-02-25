@@ -409,7 +409,7 @@ function renderStep() {
                     const field = document.createElement('input');
                     field.type = input.type || 'text';
                     field.placeholder = input.placeholder || '';
-                    field.name = input.name;
+                    if (field && input) field.name = input.name || '';
                     field.className = 'quiz-input';
                     field.required = true;
                     form.appendChild(field);
@@ -678,7 +678,7 @@ function handleInputSubmit(step, formContainer) {
         if (inputs && inputs.length) {
             inputs.forEach(input => {
                 if (!input || !input.value) allValid = false;
-                if (input) userAnswers[input.name] = input.value;
+                if (input && input.name) userAnswers[input.name] = input.value || '';
             });
         }
 

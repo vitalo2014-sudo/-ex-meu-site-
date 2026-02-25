@@ -656,7 +656,7 @@
     </div>
 
     <script src="utils.js"></script>
-    <script src="analytics.js"></script>
+    <script type="module" src="analytics.js"></script>
     <script>
         try {
             // Track checkout load
@@ -721,9 +721,9 @@
                     const strong = notification.querySelector('strong');
                     const timeEl = notification.querySelector('.sales-time');
 
-                    if (img) img.src = `https://ui-avatars.com/api/?background=random&color=fff&name=${buyer.name}`;
-                    if (strong) strong.textContent = buyer.name;
-                    if (timeEl) timeEl.textContent = `Hace ${timeAgo} min • ${buyer.city}`;
+                    if (img && buyer) img.src = `https://ui-avatars.com/api/?background=random&color=fff&name=${buyer.name || 'User'}`;
+                    if (strong && buyer) strong.textContent = buyer.name || 'Alguien';
+                    if (timeEl && buyer) timeEl.textContent = `Hace ${timeAgo} min • ${buyer.city || 'Colombia'}`;
 
                     notification.classList.add('active');
                     setTimeout(() => {
