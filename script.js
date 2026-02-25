@@ -274,8 +274,8 @@ const totalStepsEl = document.getElementById('total-steps');
 
 function init() {
     try {
-        if (totalStepsEl && steps && steps.length) {
-            totalStepsEl.textContent = steps.length;
+        if (totalStepsEl && steps) {
+            totalStepsEl.textContent = SafeUtils.length(steps);
         }
 
         if (window.trackEvent) {
@@ -290,7 +290,7 @@ function init() {
 
 function updateProgress() {
     try {
-        const total = (steps && steps.length) ? steps.length : 1;
+        const total = (steps) ? SafeUtils.length(steps) : 1;
         const progress = ((currentStepIndex + 1) / total) * 100;
         if (progressBar) progressBar.style.width = `${progress}%`;
         if (currentStepEl) currentStepEl.textContent = currentStepIndex + 1;
@@ -494,7 +494,7 @@ function renderStep() {
         } else if (step.type === 'final_result') {
             if (window.trackEvent) {
                 window.trackEvent("quiz_completed", {
-                    total_steps: (steps && steps.length) || 0,
+                    total_steps: SafeUtils.length(steps),
                     completed: true
                 });
             }
@@ -581,7 +581,7 @@ function renderStep() {
 // Handlers
 function nextStep() {
     try {
-        if (steps && currentStepIndex < steps.length - 1) {
+        if (steps && currentStepIndex < SafeUtils.length(steps) - 1) {
             const currentCard = document.querySelector('.step-card');
             if (currentCard) {
                 currentCard.style.opacity = '0';
@@ -592,7 +592,7 @@ function nextStep() {
                 currentStepIndex++;
                 renderStep();
             }, 300);
-        } else if (steps && currentStepIndex === steps.length - 1) {
+        } else if (steps && currentStepIndex === SafeUtils.length(steps) - 1) {
             console.log("Quiz already at last step.");
         }
     } catch (err) {
