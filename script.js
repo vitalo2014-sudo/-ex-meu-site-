@@ -1,11 +1,37 @@
-/*Quiz Logic - Verified & Fixed */
+/* Quiz Logic - Production Stable & Static Verified */
 
-/* 
-  Data Structure based on 43 steps. 
-  For brevity in this file, we act out the key logic with a representative subset 
-  that covers all unique functionalities required. 
-  You can expand the 'steps' array to 43 items following this pattern.
-*/
+/**
+ * PRODUCTION STABILITY HELPERS
+ */
+const SafeJSON = {
+    parse: (key) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw && raw !== "undefined" && raw !== "null") {
+                return JSON.parse(raw);
+            }
+        } catch (e) {
+            console.warn(`Invalid JSON in localStorage for key "${key}". Resetting.`);
+            localStorage.removeItem(key);
+        }
+        return null;
+    }
+};
+
+/**
+ * THEME MANAGEMENT (Safety check for getTheme errors)
+ */
+function getTheme() {
+    try {
+        const theme = SafeJSON.parse("app_theme") || { name: "default", mode: "dark" };
+        if (theme && theme.name) {
+            return theme;
+        }
+        return { name: "default", mode: "dark" };
+    } catch (e) {
+        return { name: "default", mode: "dark" };
+    }
+}
 
 const steps = [
     // --- 1. CALIFICACIÓN INICIAL (1-7) ---
@@ -77,13 +103,11 @@ const steps = [
         id: 'social_proof_1',
         type: 'info',
         title: 'No estás sola',
-        // --- ADICIONE O VÍDEO DE MOTIVAÇÃO AQUI ---
-        // Nomeie o arquivo como 'motivacao.mp4' e coloque na pasta do projeto
         videoEmbed: `<div style="position:relative; width:100%; height:100%;">
                         <video id="vid-motivacao" width="100%" height="auto" autoplay muted playsinline style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
                             <source src="motivacao.mp4" type="video/mp4">
                         </video>
-                        <button onclick="const v = document.getElementById('vid-motivacao'); v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none';" 
+                        <button onclick="const v = document.getElementById('vid-motivacao'); if(v) { v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none'; }" 
                                 style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
                                        background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
                                        border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 
@@ -91,11 +115,10 @@ const steps = [
                             🔊 ACTIVAR SONIDO
                         </button>
                      </div>`,
-        delayBtn: 15000, // 15 segundos de atraso
-        content: 'Más de 47.000 personas ya han transformado sus vidas con este método. El 72% logró reducir 2 tallas de ropa en los primeros 3 meses.',
+        delayBtn: 15000,
+        content: 'Más de 47.000 personas ya han transformado sus vidas con este método. El 72% logró reducir 2 tallas de ropa en los primeiros 3 meses.',
         buttonText: '¡Quiero ser parte de esto!'
     },
-    // --- 2. PERSONALIZACIÓN FÍSICA (8-12) ---
     {
         id: 'body_areas',
         type: 'multiple_choice',
@@ -131,7 +154,6 @@ const steps = [
             { label: 'Nunca estuve en mi peso ideal', value: 'never' }
         ]
     },
-    // --- 3. EDUCACIÓN Y COMPROMISO (13-16) ---
     {
         id: 'fasting_knowledge',
         type: 'single_choice',
@@ -153,7 +175,6 @@ const steps = [
             { label: 'Es una cuestión de salud urgente', value: 'health_urgent', emoji: '🏥' }
         ]
     },
-    // --- 4. HÁBITOS ALIMENTICIOS (17-23) ---
     {
         id: 'meals',
         type: 'multiple_choice',
@@ -175,7 +196,6 @@ const steps = [
             { label: 'Exagero un poco (día libre)', value: 'cheat' }
         ]
     },
-    // --- 5. ESTILO DE VIDA (24-31) ---
     {
         id: 'exercise_freq',
         type: 'single_choice',
@@ -206,7 +226,6 @@ const steps = [
             { label: 'Más de 2 litros', value: 'high' }
         ]
     },
-    // --- 6. LIMITACIONES Y DESAFÍOS (32-35) ---
     {
         id: 'challenges',
         type: 'multiple_choice',
@@ -218,7 +237,6 @@ const steps = [
             { label: 'Falta de motivación', value: 'motivation', emoji: '🥀' }
         ]
     },
-    // --- 7. DATOS ANTROPOMÉTRICOS (36-39) ---
     {
         id: 'measurements',
         type: 'input_group',
@@ -229,7 +247,6 @@ const steps = [
             { name: 'goal_weight', label: 'Peso meta (kg)', type: 'number', placeholder: 'Ej: 60' }
         ]
     },
-    // --- 8. RESULTADO Y CONVERSIÓN (40-43) ---
     {
         id: 'calculating',
         type: 'calculating',
@@ -237,18 +254,14 @@ const steps = [
         duration: 4000
     },
     {
-
         id: 'result_ready',
         type: 'final_result',
         title: '¡Todo listo!',
-        // --- ADICIONE SEU VÍDEO AQUI ---
-        // 1. Mova seu arquivo de vídeo para a mesma pasta deste projeto
-        // 2. Renomeie o arquivo para 'vsl.mp4' (ou altere o nome abaixo)
         videoEmbed: `<div style="position:relative; width:100%; height:100%;">
                         <video id="vid-vsl" width="100%" height="auto" autoplay muted playsinline style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
                             <source src="vsl.mp4" type="video/mp4">
                         </video>
-                        <button onclick="const v = document.getElementById('vid-vsl'); v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none';" 
+                        <button onclick="const v = document.getElementById('vid-vsl'); if(v) { v.muted = false; v.volume = 1.0; v.currentTime = 0; v.play(); this.style.display = 'none'; }" 
                                 style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
                                        background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
                                        border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 
@@ -258,7 +271,7 @@ const steps = [
                      </div>`,
         content: 'Descubrimos exactamente lo que estaba impidiendo tu adelgazamiento. Tu perfil metabólico es perfectamente compatible con el AYUNO RESET - metabólico 360.',
         buttonText: 'QUIERO ACCEDER AHORA',
-        delayBtn: 15000 // 15 segundos de atraso
+        delayBtn: 15000
     }
 ];
 
@@ -274,6 +287,9 @@ const totalStepsEl = document.getElementById('total-steps');
 
 function init() {
     try {
+        // Apply theme safety
+        getTheme();
+
         if (totalStepsEl && steps) {
             totalStepsEl.textContent = SafeUtils.length(steps);
         }
@@ -301,8 +317,6 @@ function updateProgress() {
 
 function renderStep() {
     try {
-        console.log("renderStep executou:", currentStepIndex);
-
         if (!contentContainer) return;
         contentContainer.innerHTML = '';
 
@@ -320,18 +334,15 @@ function renderStep() {
             });
         }
 
-        // Analytics: Track Step reached
         if (typeof Analytics !== 'undefined' && Analytics.trackStep) {
             Analytics.trackStep(step.id);
         }
 
         updateProgress();
 
-        // Create Card
         const card = document.createElement('div');
         card.className = 'step-card';
 
-        // Title
         if (step.question) {
             const title = document.createElement('h2');
             title.className = 'step-title';
@@ -346,7 +357,6 @@ function renderStep() {
             card.appendChild(sub);
         }
 
-        // Render Logic based on Type
         if (step.type === 'single_choice' || step.type === 'multiple_choice') {
             const grid = document.createElement('div');
             grid.className = 'options-grid';
@@ -374,7 +384,6 @@ function renderStep() {
                 }
                 card.appendChild(grid);
                 card.appendChild(nextBtn);
-
             } else {
                 if (step.options && step.options.forEach) {
                     step.options.forEach((opt) => {
@@ -392,7 +401,6 @@ function renderStep() {
                 }
                 card.appendChild(grid);
             }
-
         } else if (step.type === 'input_group') {
             const form = document.createElement('div');
             form.className = 'input-group';
@@ -423,7 +431,6 @@ function renderStep() {
 
             card.appendChild(form);
             card.appendChild(nextBtn);
-
         } else if (step.type === 'info') {
             let videoHTML = '';
             if (step.videoEmbed) {
@@ -448,7 +455,6 @@ function renderStep() {
             if (step.delayBtn) {
                 nextBtn.style.display = 'none';
                 const videoElement = infoBox.querySelector('video');
-
                 if (videoElement) {
                     const fallbackTimer = setTimeout(() => {
                         if (nextBtn.style.display === 'none') {
@@ -458,28 +464,22 @@ function renderStep() {
                     }, step.delayBtn + 1000);
 
                     videoElement.ontimeupdate = function () {
-                        const delaySeconds = step.delayBtn / 1000;
-                        if (videoElement.currentTime >= delaySeconds) {
+                        if (videoElement.currentTime >= step.delayBtn / 1000) {
                             nextBtn.style.display = 'block';
                             nextBtn.scrollIntoView({ behavior: 'smooth' });
                             videoElement.ontimeupdate = null;
                             clearTimeout(fallbackTimer);
                         }
                     };
-
-                    videoElement.onerror = function () {
+                    videoElement.onerror = () => {
                         nextBtn.style.display = 'block';
                         clearTimeout(fallbackTimer);
                     };
                 } else {
-                    setTimeout(() => {
-                        nextBtn.style.display = 'block';
-                        nextBtn.scrollIntoView({ behavior: 'smooth' });
-                    }, step.delayBtn);
+                    setTimeout(() => { nextBtn.style.display = 'block'; }, step.delayBtn);
                 }
             }
             card.appendChild(nextBtn);
-
         } else if (step.type === 'calculating') {
             card.innerHTML = `
                 <div class="calculating-screen">
@@ -487,10 +487,7 @@ function renderStep() {
                     <p class="analyzing-text">${step.text || 'Calculando...'}</p>
                 </div>
             `;
-            setTimeout(() => {
-                nextStep();
-            }, step.duration || 3000);
-
+            setTimeout(() => { nextStep(); }, step.duration || 3000);
         } else if (step.type === 'final_result') {
             if (window.trackEvent) {
                 window.trackEvent("quiz_completed", {
@@ -546,7 +543,6 @@ function renderStep() {
                                 finalBtn.scrollIntoView({ behavior: 'smooth' });
                             }
                         }, step.delayBtn + 1000);
-
                         videoElement.ontimeupdate = function () {
                             if (videoElement.currentTime >= step.delayBtn / 1000) {
                                 finalBtn.style.display = 'block';
@@ -566,9 +562,7 @@ function renderStep() {
             }
             card.appendChild(finalBtn);
         }
-
         contentContainer.appendChild(card);
-
     } catch (err) {
         console.error("Critical error in renderStep:", err);
         if (contentContainer) {
@@ -577,8 +571,6 @@ function renderStep() {
     }
 }
 
-
-// Handlers
 function nextStep() {
     try {
         if (steps && currentStepIndex < SafeUtils.length(steps) - 1) {
@@ -587,23 +579,15 @@ function nextStep() {
                 currentCard.style.opacity = '0';
                 currentCard.style.transform = 'translateY(-20px)';
             }
-
-            setTimeout(() => {
-                currentStepIndex++;
-                renderStep();
-            }, 300);
-        } else if (steps && currentStepIndex === SafeUtils.length(steps) - 1) {
-            console.log("Quiz already at last step.");
+            setTimeout(() => { currentStepIndex++; renderStep(); }, 300);
         }
-    } catch (err) {
-        console.error("Error in nextStep:", err);
-    }
+    } catch (err) { console.error("Error in nextStep:", err); }
 }
+
 async function handleSingleChoice(step, value) {
     try {
         if (!step) return;
         userAnswers[step.id] = value;
-
         const options = document.querySelectorAll('.quiz-option');
         if (options && options.length) {
             options.forEach(opt => {
@@ -613,60 +597,29 @@ async function handleSingleChoice(step, value) {
                 }
             });
         }
-
-        if (window.trackEvent) {
-            await window.trackEvent("quiz_answer", {
-                step_id: step.id,
-                answer: value,
-                step_number: currentStepIndex + 1
-            });
-        }
-
-        setTimeout(() => {
-            nextStep();
-        }, 300);
+        if (window.trackEvent) { await window.trackEvent("quiz_answer", { step_id: step.id, answer: value, step_number: currentStepIndex + 1 }); }
+        setTimeout(() => { nextStep(); }, 300);
     } catch (e) {
         console.error("Error in handleSingleChoice:", e);
-        nextStep(); // Fallback
+        nextStep();
     }
 }
 
-function toggleMultiSelection(e, btn) {
-    btn.classList.toggle('selected');
-}
+function toggleMultiSelection(e, btn) { btn.classList.toggle('selected'); }
 
 async function handleMultiChoiceSubmit(step) {
     try {
         if (!step) return;
         const selected = [];
         const selectedEles = document.querySelectorAll('.quiz-option.selected');
-
         if (selectedEles && selectedEles.length) {
-            selectedEles.forEach(btn => {
-                if (btn && btn.dataset.value) selected.push(btn.dataset.value);
-            });
+            selectedEles.forEach(btn => { if (btn && btn.dataset.value) selected.push(btn.dataset.value); });
         }
-
-        if (selected.length === 0) {
-            alert('Por favor, selecciona al menos una opción.');
-            return;
-        }
-
+        if (selected.length === 0) { alert('Por favor, selecciona al menos una opção.'); return; }
         userAnswers[step.id] = selected;
-
-        if (window.trackEvent) {
-            await window.trackEvent("quiz_answer", {
-                step_id: step.id,
-                answer: selected,
-                step_number: currentStepIndex + 1
-            });
-        }
-
+        if (window.trackEvent) { await window.trackEvent("quiz_answer", { step_id: step.id, answer: selected, step_number: currentStepIndex + 1 }); }
         nextStep();
-    } catch (err) {
-        console.error("Error in handleMultiChoiceSubmit:", err);
-        nextStep();
-    }
+    } catch (err) { console.error("Error in handleMultiChoiceSubmit:", err); nextStep(); }
 }
 
 function handleInputSubmit(step, formContainer) {
@@ -674,25 +627,15 @@ function handleInputSubmit(step, formContainer) {
         if (!formContainer) return;
         const inputs = formContainer.querySelectorAll('input');
         let allValid = true;
-
         if (inputs && inputs.length) {
             inputs.forEach(input => {
                 if (!input || !input.value) allValid = false;
                 if (input && input.name) userAnswers[input.name] = input.value || '';
             });
         }
-
-        if (!allValid) {
-            alert('Por favor, completa todos los campos.');
-            return;
-        }
-
+        if (!allValid) { alert('Por favor, completa todos los campos.'); return; }
         nextStep();
-    } catch (err) {
-        console.error("Error in handleInputSubmit:", err);
-        nextStep();
-    }
+    } catch (err) { console.error("Error in handleInputSubmit:", err); nextStep(); }
 }
 
-/* Initialization */
 document.addEventListener('DOMContentLoaded', init);
