@@ -71,6 +71,7 @@
             margin-bottom: 15px;
             background: linear-gradient(to right, #fff, #cbd5e1);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -654,82 +655,95 @@
         </footer>
     </div>
 
+    <script src="utils.js"></script>
     <script src="analytics.js"></script>
     <script>
-        // Track checkout load
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof Analytics !== 'undefined') Analytics.trackCheckoutLoad();
+        try {
+            // Track checkout load
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof Analytics !== 'undefined' && Analytics.trackCheckoutLoad) Analytics.trackCheckoutLoad();
 
-            // Track button clicks
-            document.querySelectorAll('.btn-cta').forEach(btn => {
-                const originalOnClick = btn.onclick;
-                btn.onclick = (e) => {
-                    if (typeof Analytics !== 'undefined') Analytics.trackPaymentClick();
-                    if (originalOnClick) originalOnClick.call(btn, e);
-                };
+                // Track button clicks
+                document.querySelectorAll('.btn-cta').forEach(btn => {
+                    const originalOnClick = btn.onclick;
+                    btn.onclick = (e) => {
+                        if (typeof Analytics !== 'undefined' && Analytics.trackPaymentClick) Analytics.trackPaymentClick();
+                        if (originalOnClick) originalOnClick.call(btn, e);
+                    };
+                });
             });
-        });
 
-        // Simple Countdown Timer Logic
-        let time = 600; // 10 minutes in seconds
-        const timerEl = document.getElementById('timer');
+            // Simple Countdown Timer Logic
+            let time = 600; // 10 minutes in seconds
+            const timerEl = document.getElementById('timer');
 
-        setInterval(() => {
-            if (time <= 0) return;
-            time--;
-
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
-
-            timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        }, 1000);
-        // Social Proof Notifications
-        const buyers = [
-            { name: 'Sofía R.', city: 'Bogotá' },
-            { name: 'Valentina M.', city: 'Medellín' },
-            { name: 'Isabella G.', city: 'Cali' },
-            { name: 'Camila T.', city: 'Barranquilla' },
-            { name: 'Mariana L.', city: 'Cartagena' },
-            { name: 'Gabriela P.', city: 'Bucaramanga' },
-            { name: 'Daniela S.', city: 'Pereira' },
-            { name: 'Andrea C.', city: 'Santa Marta' },
-            { name: 'Lucía V.', city: 'Ibagué' },
-            { name: 'Martina H.', city: 'Manizales' }
-        ];
-
-        const notification = document.createElement('div');
-        notification.className = 'sales-notification';
-        notification.innerHTML = `
-            <img src="" alt="Usuario">
-            <div class="sales-notification-content">
-                <p><strong></strong> acaba de inscribirse al Plan</p>
-                <div class="sales-time"></div>
-            </div>
-        `;
-        document.body.appendChild(notification);
-
-        function showNotification() {
-            const buyer = buyers[Math.floor(Math.random() * buyers.length)];
-            const timeAgo = Math.floor(Math.random() * 12) + 1; // 1-12 mins
-
-            notification.querySelector('img').src = `https://ui-avatars.com/api/?background=random&color=fff&name=${buyer.name}`;
-            notification.querySelector('strong').textContent = buyer.name;
-            notification.querySelector('.sales-time').textContent = `Hace ${timeAgo} min • ${buyer.city}`;
-
-            notification.classList.add('active');
-
-            setTimeout(() => {
-                notification.classList.remove('active');
-            }, 5000);
-        }
-
-        // Cycle
-        setTimeout(() => {
-            showNotification();
             setInterval(() => {
+                if (time <= 0) return;
+                time--;
+
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                if (timerEl) timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
+
+            // Social Proof Notifications
+            const buyers = [
+                { name: 'Sofía R.', city: 'Bogotá' },
+                { name: 'Valentina M.', city: 'Medellín' },
+                { name: 'Isabella G.', city: 'Cali' },
+                { name: 'Camila T.', city: 'Barranquilla' },
+                { name: 'Mariana L.', city: 'Cartagena' },
+                { name: 'Gabriela P.', city: 'Bucaramanga' },
+                { name: 'Daniela S.', city: 'Pereira' },
+                { name: 'Andrea C.', city: 'Santa Marta' },
+                { name: 'Lucía V.', city: 'Ibagué' },
+                { name: 'Martina H.', city: 'Manizales' }
+            ];
+
+            const notification = document.createElement('div');
+            notification.className = 'sales-notification';
+            notification.innerHTML = `
+                <img src="" alt="Usuario">
+                <div class="sales-notification-content">
+                    <p><strong></strong> acaba de inscribirse al Plan</p>
+                    <div class="sales-time"></div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            function showNotification() {
+                try {
+                    if (!buyers || buyers.length === 0) return;
+                    const buyer = buyers[Math.floor(Math.random() * buyers.length)];
+                    const timeAgo = Math.floor(Math.random() * 12) + 1;
+
+                    const img = notification.querySelector('img');
+                    const strong = notification.querySelector('strong');
+                    const timeEl = notification.querySelector('.sales-time');
+
+                    if (img) img.src = `https://ui-avatars.com/api/?background=random&color=fff&name=${buyer.name}`;
+                    if (strong) strong.textContent = buyer.name;
+                    if (timeEl) timeEl.textContent = `Hace ${timeAgo} min • ${buyer.city}`;
+
+                    notification.classList.add('active');
+                    setTimeout(() => {
+                        notification.classList.remove('active');
+                    }, 5000);
+                } catch (e) {
+                    console.warn("Notification error:", e);
+                }
+            }
+
+            // Cycle
+            setTimeout(() => {
                 showNotification();
-            }, Math.floor(Math.random() * (20000 - 10000 + 1) + 10000)); // Random interval 10-20s
-        }, 3000);
+                setInterval(() => {
+                    showNotification();
+                }, Math.floor(Math.random() * (20000 - 10000 + 1) + 10000));
+            }, 3000);
+        } catch (err) {
+            console.error("Critical error in checkout script:", err);
+        }
     </script>
 </body>
 

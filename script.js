@@ -258,7 +258,7 @@ const steps = [
                      </div>`,
         content: 'Descubrimos exactamente lo que estaba impidiendo tu adelgazamiento. Tu perfil metabólico es perfectamente compatible con el AYUNO RESET - metabólico 360.',
         buttonText: 'QUIERO ACCEDER AHORA',
-        delayBtn: 30000 // 30 segundos de atraso
+        delayBtn: 15000 // 15 segundos de atraso
     }
 ];
 
@@ -273,333 +273,425 @@ const currentStepEl = document.getElementById('current-step');
 const totalStepsEl = document.getElementById('total-steps');
 
 function init() {
-    totalStepsEl.textContent = steps.length;
-    renderStep();
+    try {
+        if (totalStepsEl && steps && steps.length) {
+            totalStepsEl.textContent = steps.length;
+        }
+
+        if (window.trackEvent) {
+            window.trackEvent("quiz_start");
+        }
+
+        renderStep();
+    } catch (err) {
+        console.error("Critical error in init:", err);
+    }
 }
 
 function updateProgress() {
-    const progress = ((currentStepIndex + 1) / steps.length) * 100;
-    progressBar.style.width = `${progress}% `;
-    currentStepEl.textContent = currentStepIndex + 1;
+    try {
+        const total = (steps && steps.length) ? steps.length : 1;
+        const progress = ((currentStepIndex + 1) / total) * 100;
+        if (progressBar) progressBar.style.width = `${progress}%`;
+        if (currentStepEl) currentStepEl.textContent = currentStepIndex + 1;
+    } catch (err) {
+        console.warn("Update progress failed:", err);
+    }
 }
 
 function renderStep() {
-    // Clear content
-    contentContainer.innerHTML = '';
+    try {
+        console.log("renderStep executou:", currentStepIndex);
 
-    // Get current step
-    const step = steps[currentStepIndex];
-    if (!step) return;
+        if (!contentContainer) return;
+        contentContainer.innerHTML = '';
 
-    // Analytics: Track Step reached
-    if (typeof Analytics !== 'undefined') Analytics.trackStep(step.id);
+        if (!steps || !steps[currentStepIndex]) {
+            console.error("Step not found at index:", currentStepIndex);
+            return;
+        }
 
-    updateProgress();
+        const step = steps[currentStepIndex];
 
-    // Create Card
-    const card = document.createElement('div');
-    card.className = 'step-card';
+        if (window.trackEvent) {
+            window.trackEvent("quiz_progress", {
+                step_id: step.id,
+                step_number: currentStepIndex + 1
+            });
+        }
 
-    // Title
-    if (step.question) {
-        const title = document.createElement('h2');
-        title.className = 'step-title';
-        title.textContent = step.question;
-        card.appendChild(title);
-    }
+        // Analytics: Track Step reached
+        if (typeof Analytics !== 'undefined' && Analytics.trackStep) {
+            Analytics.trackStep(step.id);
+        }
 
-    if (step.subtitle) {
-        const sub = document.createElement('p');
-        sub.className = 'step-description';
-        sub.textContent = step.subtitle;
-        card.appendChild(sub);
-    }
+        updateProgress();
 
-    // Render Logic based on Type
-    if (step.type === 'single_choice' || step.type === 'multiple_choice') {
-        const grid = document.createElement('div');
-        grid.className = 'options-grid';
+        // Create Card
+        const card = document.createElement('div');
+        card.className = 'step-card';
 
-        if (step.type === 'multiple_choice') {
-            // Add a "Continue" button for multiple choice
+        // Title
+        if (step.question) {
+            const title = document.createElement('h2');
+            title.className = 'step-title';
+            title.textContent = step.question;
+            card.appendChild(title);
+        }
+
+        if (step.subtitle) {
+            const sub = document.createElement('p');
+            sub.className = 'step-description';
+            sub.textContent = step.subtitle;
+            card.appendChild(sub);
+        }
+
+        // Render Logic based on Type
+        if (step.type === 'single_choice' || step.type === 'multiple_choice') {
+            const grid = document.createElement('div');
+            grid.className = 'options-grid';
+
+            if (step.type === 'multiple_choice') {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'btn-primary';
+                nextBtn.textContent = 'Continuar';
+                nextBtn.onclick = () => handleMultiChoiceSubmit(step);
+
+                if (step.options && step.options.forEach) {
+                    step.options.forEach((opt) => {
+                        const btn = document.createElement('div');
+                        btn.className = 'quiz-option';
+                        btn.dataset.value = opt.value;
+                        btn.onclick = (e) => toggleMultiSelection(e, btn);
+
+                        let innerHTML = '';
+                        if (opt.emoji) innerHTML += `<span class="option-emoji">${opt.emoji}</span>`;
+                        innerHTML += `<span class="option-text">${opt.label}</span>`;
+
+                        btn.innerHTML = innerHTML;
+                        grid.appendChild(btn);
+                    });
+                }
+                card.appendChild(grid);
+                card.appendChild(nextBtn);
+
+            } else {
+                if (step.options && step.options.forEach) {
+                    step.options.forEach((opt) => {
+                        const btn = document.createElement('div');
+                        btn.className = 'quiz-option';
+                        btn.onclick = () => handleSingleChoice(step, opt.value);
+
+                        let innerHTML = '';
+                        if (opt.emoji) innerHTML += `<span class="option-emoji">${opt.emoji}</span>`;
+                        innerHTML += `<span class="option-text">${opt.label}</span>`;
+
+                        btn.innerHTML = innerHTML;
+                        grid.appendChild(btn);
+                    });
+                }
+                card.appendChild(grid);
+            }
+
+        } else if (step.type === 'input_group') {
+            const form = document.createElement('div');
+            form.className = 'input-group';
+
+            if (step.inputs && step.inputs.forEach) {
+                step.inputs.forEach(input => {
+                    if (input.label) {
+                        const label = document.createElement('label');
+                        label.className = 'input-label';
+                        label.textContent = input.label;
+                        form.appendChild(label);
+                    }
+
+                    const field = document.createElement('input');
+                    field.type = input.type || 'text';
+                    field.placeholder = input.placeholder || '';
+                    field.name = input.name;
+                    field.className = 'quiz-input';
+                    field.required = true;
+                    form.appendChild(field);
+                });
+            }
+
             const nextBtn = document.createElement('button');
             nextBtn.className = 'btn-primary';
-            nextBtn.textContent = 'Continuar';
-            nextBtn.onclick = () => handleMultiChoiceSubmit(step);
+            nextBtn.textContent = 'Calcular Resultados';
+            nextBtn.onclick = () => handleInputSubmit(step, form);
 
-            step.options.forEach((opt, idx) => {
-                const btn = document.createElement('div');
-                btn.className = 'quiz-option';
-                btn.dataset.value = opt.value;
-                btn.onclick = (e) => toggleMultiSelection(e, btn);
-
-                let innerHTML = '';
-                if (opt.emoji) innerHTML += `<span class="option-emoji">${opt.emoji}</span>`;
-                innerHTML += `<span class="option-text">${opt.label}</span>`;
-
-                btn.innerHTML = innerHTML;
-                grid.appendChild(btn);
-            });
-            card.appendChild(grid);
+            card.appendChild(form);
             card.appendChild(nextBtn);
 
-        } else {
-            // Single Choice
-            step.options.forEach((opt) => {
-                const btn = document.createElement('div');
-                btn.className = 'quiz-option';
-                btn.onclick = () => handleSingleChoice(step, opt.value);
-
-                let innerHTML = '';
-                if (opt.emoji) innerHTML += `<span class="option-emoji">${opt.emoji}</span>`;
-                innerHTML += `<span class="option-text">${opt.label}</span>`;
-
-                btn.innerHTML = innerHTML;
-                grid.appendChild(btn);
-            });
-            card.appendChild(grid);
-        }
-
-    } else if (step.type === 'input_group') {
-        const form = document.createElement('div');
-        form.className = 'input-group';
-
-        step.inputs.forEach(input => {
-            if (input.label) {
-                const label = document.createElement('label');
-                label.className = 'input-label';
-                label.textContent = input.label;
-                form.appendChild(label);
+        } else if (step.type === 'info') {
+            let videoHTML = '';
+            if (step.videoEmbed) {
+                const containerClass = step.isVertical ? 'video-container vertical' : 'video-container';
+                videoHTML = `<div class="${containerClass}">${step.videoEmbed}</div>`;
             }
 
-            const field = document.createElement('input');
-            field.type = input.type;
-            field.placeholder = input.placeholder;
-            field.name = input.name;
-            field.className = 'quiz-input';
-            field.required = true;
-            form.appendChild(field);
-        });
+            const infoBox = document.createElement('div');
+            infoBox.className = 'info-box';
+            infoBox.innerHTML = `
+                ${videoHTML}
+                <div class="info-title">💡 Información Importante</div>
+                <p>${step.content || ''}</p>
+            `;
+            card.appendChild(infoBox);
 
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn-primary';
-        nextBtn.textContent = 'Calcular Resultados';
-        nextBtn.onclick = () => handleInputSubmit(step, form);
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'btn-primary';
+            nextBtn.textContent = step.buttonText || 'Continuar';
+            nextBtn.onclick = () => nextStep();
 
-        card.appendChild(form);
-        card.appendChild(nextBtn);
+            if (step.delayBtn) {
+                nextBtn.style.display = 'none';
+                const videoElement = infoBox.querySelector('video');
 
-    } else if (step.type === 'info') {
-        let videoHTML = '';
-        if (step.videoEmbed) {
-            const containerClass = step.isVertical ? 'video-container vertical' : 'video-container';
-            videoHTML = `<div class="${containerClass}">${step.videoEmbed}</div>`;
-        }
-
-        const infoBox = document.createElement('div');
-        infoBox.className = 'info-box';
-        infoBox.innerHTML = `
-            ${videoHTML}
-            <div class="info-title">💡 Información Importante</div>
-            <p>${step.content}</p>
-`;
-        card.appendChild(infoBox);
-
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn-primary';
-        nextBtn.textContent = step.buttonText || 'Continuar';
-        nextBtn.onclick = () => nextStep();
-
-        if (step.delayBtn) {
-            nextBtn.style.display = 'none';
-
-            const videoElement = infoBox.querySelector('video');
-
-            if (videoElement) {
-                // Safety fallback: if video doesn't play or metadata fails, show button anyway after delay + buffer
-                const fallbackTimer = setTimeout(() => {
-                    if (nextBtn.style.display === 'none') {
-                        nextBtn.style.display = 'block';
-                        nextBtn.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }, step.delayBtn + 1000);
-
-                videoElement.ontimeupdate = function () {
-                    const delaySeconds = step.delayBtn / 1000;
-                    if (videoElement.currentTime >= delaySeconds) {
-                        nextBtn.style.display = 'block';
-                        nextBtn.scrollIntoView({ behavior: 'smooth' });
-                        videoElement.ontimeupdate = null;
-                        clearTimeout(fallbackTimer);
-                    }
-                };
-
-                videoElement.onerror = function () {
-                    nextBtn.style.display = 'block';
-                    clearTimeout(fallbackTimer);
-                };
-            } else {
-                setTimeout(() => {
-                    nextBtn.style.display = 'block';
-                    nextBtn.scrollIntoView({ behavior: 'smooth' });
-                }, step.delayBtn);
-            }
-        }
-
-        card.appendChild(nextBtn);
-
-    } else if (step.type === 'calculating') {
-        card.innerHTML = `
-            <div class="calculating-screen">
-                <div class="spinner"></div>
-                <p class="analyzing-text">${step.text}</p>
-            </div>
-        `;
-        setTimeout(() => {
-            nextStep();
-        }, step.duration || 3000);
-
-    } else if (step.type === 'final_result') {
-        // Calculate some BMI or result based on inputs
-        const height = userAnswers['height'] || 170;
-        const weight = userAnswers['weight'] || 70;
-        const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-
-        let videoHTML = '';
-        if (step.videoEmbed) {
-            const containerClass = step.isVertical ? 'video-container vertical' : 'video-container';
-            videoHTML = `<div class="${containerClass}">${step.videoEmbed}</div>`;
-        }
-
-        card.innerHTML = `
-             <h2 class="step-title" style="color:var(--primary);">${step.title}</h2>
-
-             ${videoHTML}
-
-             <div class="info-box" style="margin-bottom: 20px;">
-                <h3 style="color:white; margin-bottom:5px;">Tu IMC Calculado: ${bmi}</h3>
-                <p>${step.content}</p>
-             </div>
-               <p style="text-align:center; color: #cbd5e1; margin-bottom:20px;">
-                  Desbloquea tu protocolo personalizado ahora.
-               </p>
-           `;
-
-        const finalBtn = document.createElement('button');
-        finalBtn.className = 'btn-primary';
-        finalBtn.style.background = 'linear-gradient(to right, #10b981, #059669)'; // Green gradient
-        finalBtn.textContent = step.buttonText;
-        finalBtn.onclick = () => {
-            const currentWeight = userAnswers['weight'] || 80;
-            const goalWeight = userAnswers['goal_weight'] || 60;
-            window.location.href = `checkout.html?start=${currentWeight}&goal=${goalWeight}`;
-        };
-
-        if (step.delayBtn) {
-            finalBtn.style.display = 'none';
-            // Wait for innerHTML to be parsed
-            setTimeout(() => {
-                const videoElement = card.querySelector('video');
                 if (videoElement) {
                     const fallbackTimer = setTimeout(() => {
-                        if (finalBtn.style.display === 'none') {
-                            finalBtn.style.display = 'block';
-                            finalBtn.scrollIntoView({ behavior: 'smooth' });
+                        if (nextBtn.style.display === 'none') {
+                            nextBtn.style.display = 'block';
+                            nextBtn.scrollIntoView({ behavior: 'smooth' });
                         }
                     }, step.delayBtn + 1000);
 
                     videoElement.ontimeupdate = function () {
                         const delaySeconds = step.delayBtn / 1000;
                         if (videoElement.currentTime >= delaySeconds) {
-                            finalBtn.style.display = 'block';
-                            finalBtn.scrollIntoView({ behavior: 'smooth' });
+                            nextBtn.style.display = 'block';
+                            nextBtn.scrollIntoView({ behavior: 'smooth' });
                             videoElement.ontimeupdate = null;
                             clearTimeout(fallbackTimer);
                         }
                     };
 
                     videoElement.onerror = function () {
-                        finalBtn.style.display = 'block';
+                        nextBtn.style.display = 'block';
                         clearTimeout(fallbackTimer);
                     };
                 } else {
                     setTimeout(() => {
-                        finalBtn.style.display = 'block';
+                        nextBtn.style.display = 'block';
+                        nextBtn.scrollIntoView({ behavior: 'smooth' });
                     }, step.delayBtn);
                 }
-            }, 100);
+            }
+            card.appendChild(nextBtn);
+
+        } else if (step.type === 'calculating') {
+            card.innerHTML = `
+                <div class="calculating-screen">
+                    <div class="spinner"></div>
+                    <p class="analyzing-text">${step.text || 'Calculando...'}</p>
+                </div>
+            `;
+            setTimeout(() => {
+                nextStep();
+            }, step.duration || 3000);
+
+        } else if (step.type === 'final_result') {
+            if (window.trackEvent) {
+                window.trackEvent("quiz_completed", {
+                    total_steps: (steps && steps.length) || 0,
+                    completed: true
+                });
+            }
+
+            const height = parseFloat(userAnswers['height']) || 170;
+            const weight = parseFloat(userAnswers['weight']) || 70;
+            const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+
+            let imcStatus = "";
+            if (bmi < 18.5) imcStatus = "Bajo peso";
+            else if (bmi < 25) imcStatus = "Peso normal";
+            else if (bmi < 30) imcStatus = "Sobrepeso";
+            else imcStatus = "Obesidad";
+
+            let videoHTML = '';
+            if (step.videoEmbed) {
+                const containerClass = step.isVertical ? 'video-container vertical' : 'video-container';
+                videoHTML = `<div class="${containerClass}">${step.videoEmbed}</div>`;
+            }
+
+            card.innerHTML = `
+                <h2 class="step-title" style="color:var(--primary);">${step.title || '¡Listo!'}</h2>
+                ${videoHTML}
+                <div class="info-box" style="margin-bottom: 20px;">
+                    <h3 style="color:white; margin-bottom:5px;">Tu IMC es ${bmi} (${imcStatus})</h3>
+                    <p>Esto confirma que tu metabolismo necesita un protocolo específico para volver a activarse correctamente.</p>
+                </div>
+            `;
+
+            const finalBtn = document.createElement('button');
+            finalBtn.className = 'btn-primary';
+            finalBtn.style.background = 'linear-gradient(to right, #10b981, #059669)';
+            finalBtn.textContent = step.buttonText || 'ACCESO INSTANTÁNEO';
+            finalBtn.onclick = () => {
+                if (window.trackEvent) window.trackEvent("quiz_cta_click");
+                const currentWeight = userAnswers['weight'] || 80;
+                const goalWeight = userAnswers['goal_weight'] || 60;
+                window.location.href = `checkout.html?start=${currentWeight}&goal=${goalWeight}`;
+            };
+
+            if (step.delayBtn) {
+                finalBtn.style.display = 'none';
+                setTimeout(() => {
+                    const videoElement = card.querySelector('video');
+                    if (videoElement) {
+                        const fallbackTimer = setTimeout(() => {
+                            if (finalBtn.style.display === 'none') {
+                                finalBtn.style.display = 'block';
+                                finalBtn.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, step.delayBtn + 1000);
+
+                        videoElement.ontimeupdate = function () {
+                            if (videoElement.currentTime >= step.delayBtn / 1000) {
+                                finalBtn.style.display = 'block';
+                                finalBtn.scrollIntoView({ behavior: 'smooth' });
+                                videoElement.ontimeupdate = null;
+                                clearTimeout(fallbackTimer);
+                            }
+                        };
+                        videoElement.onerror = () => {
+                            finalBtn.style.display = 'block';
+                            clearTimeout(fallbackTimer);
+                        };
+                    } else {
+                        setTimeout(() => { finalBtn.style.display = 'block'; }, step.delayBtn);
+                    }
+                }, 100);
+            }
+            card.appendChild(finalBtn);
         }
 
-        card.appendChild(finalBtn);
-    }
+        contentContainer.appendChild(card);
 
-    contentContainer.appendChild(card);
+    } catch (err) {
+        console.error("Critical error in renderStep:", err);
+        if (contentContainer) {
+            contentContainer.innerHTML = '<div class="step-card"><p>Lo sentimos, ocurrió un error. <button onclick="location.reload()">Recargar</button></p></div>';
+        }
+    }
 }
 
 
 // Handlers
 function nextStep() {
-    if (currentStepIndex < steps.length - 1) {
-        // Fade out current
-        const currentCard = document.querySelector('.step-card');
-        currentCard.style.opacity = '0';
-        currentCard.style.transform = 'translateY(-20px)';
+    try {
+        if (steps && currentStepIndex < steps.length - 1) {
+            const currentCard = document.querySelector('.step-card');
+            if (currentCard) {
+                currentCard.style.opacity = '0';
+                currentCard.style.transform = 'translateY(-20px)';
+            }
 
-        setTimeout(() => {
-            currentStepIndex++;
-            renderStep();
-        }, 300);
+            setTimeout(() => {
+                currentStepIndex++;
+                renderStep();
+            }, 300);
+        } else if (steps && currentStepIndex === steps.length - 1) {
+            console.log("Quiz already at last step.");
+        }
+    } catch (err) {
+        console.error("Error in nextStep:", err);
     }
 }
+async function handleSingleChoice(step, value) {
+    try {
+        if (!step) return;
+        userAnswers[step.id] = value;
 
-function handleSingleChoice(step, value) {
-    userAnswers[step.id] = value;
-    // Highlight selected for visual feedback before moving
-    const options = document.querySelectorAll('.quiz-option');
-    options.forEach(opt => {
-        if (opt.dataset.value === value) opt.classList.add('selected');
-    });
+        const options = document.querySelectorAll('.quiz-option');
+        if (options && options.length) {
+            options.forEach(opt => {
+                if (opt) {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) opt.classList.add('selected');
+                }
+            });
+        }
 
-    // Small delay for UX
-    setTimeout(() => {
-        nextStep();
-    }, 300);
+        if (window.trackEvent) {
+            await window.trackEvent("quiz_answer", {
+                step_id: step.id,
+                answer: value,
+                step_number: currentStepIndex + 1
+            });
+        }
+
+        setTimeout(() => {
+            nextStep();
+        }, 300);
+    } catch (e) {
+        console.error("Error in handleSingleChoice:", e);
+        nextStep(); // Fallback
+    }
 }
 
 function toggleMultiSelection(e, btn) {
     btn.classList.toggle('selected');
 }
 
-function handleMultiChoiceSubmit(step) {
-    const selected = [];
-    document.querySelectorAll('.quiz-option.selected').forEach(btn => {
-        selected.push(btn.dataset.value);
-    });
+async function handleMultiChoiceSubmit(step) {
+    try {
+        if (!step) return;
+        const selected = [];
+        const selectedEles = document.querySelectorAll('.quiz-option.selected');
 
-    if (selected.length === 0) {
-        alert('Por favor, selecciona al menos una opción.');
-        return;
+        if (selectedEles && selectedEles.length) {
+            selectedEles.forEach(btn => {
+                if (btn && btn.dataset.value) selected.push(btn.dataset.value);
+            });
+        }
+
+        if (selected.length === 0) {
+            alert('Por favor, selecciona al menos una opción.');
+            return;
+        }
+
+        userAnswers[step.id] = selected;
+
+        if (window.trackEvent) {
+            await window.trackEvent("quiz_answer", {
+                step_id: step.id,
+                answer: selected,
+                step_number: currentStepIndex + 1
+            });
+        }
+
+        nextStep();
+    } catch (err) {
+        console.error("Error in handleMultiChoiceSubmit:", err);
+        nextStep();
     }
-
-    userAnswers[step.id] = selected;
-    nextStep();
 }
 
 function handleInputSubmit(step, formContainer) {
-    const inputs = formContainer.querySelectorAll('input');
-    let allValid = true;
+    try {
+        if (!formContainer) return;
+        const inputs = formContainer.querySelectorAll('input');
+        let allValid = true;
 
-    inputs.forEach(input => {
-        if (!input.value) allValid = false;
-        userAnswers[input.name] = input.value;
-    });
+        if (inputs && inputs.length) {
+            inputs.forEach(input => {
+                if (!input || !input.value) allValid = false;
+                if (input) userAnswers[input.name] = input.value;
+            });
+        }
 
-    if (!allValid) {
-        alert('Por favor, completa todos los campos.');
-        return;
+        if (!allValid) {
+            alert('Por favor, completa todos los campos.');
+            return;
+        }
+
+        nextStep();
+    } catch (err) {
+        console.error("Error in handleInputSubmit:", err);
+        nextStep();
     }
-
-    nextStep();
 }
 
 /* Initialization */
