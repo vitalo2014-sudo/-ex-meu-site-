@@ -302,6 +302,7 @@ function renderStep() {
         const bgManager = document.getElementById('video-background-manager');
         if (bgManager) {
             document.querySelectorAll('video[id$="-preloaded"]').forEach(vid => {
+                vid.pause();
                 vid.style.display = 'none';
                 bgManager.appendChild(vid);
             });
@@ -409,7 +410,12 @@ function renderStep() {
 
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
-                    videoEl.play().catch(() => { }); // Attempt autoplay, ignore errors if blocked
+                    videoEl.muted = true;
+                    videoEl.currentTime = 0; // Force reset for Step 7 to ensure it's at the start
+                    videoEl.load(); // Force re-fetch of buffer if needed
+                    setTimeout(() => {
+                        videoEl.play().catch(() => { });
+                    }, 50);
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -418,14 +424,35 @@ function renderStep() {
                     muteBtn.onclick = () => {
                         videoEl.muted = false;
                         videoEl.volume = 1.0;
-                        videoEl.play().catch(e => console.warn('Manual play failed:', e));
-                        muteBtn.style.display = 'none';
+                        const playPromise = videoEl.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                muteBtn.style.display = 'none';
+                            }).catch(error => {
+                                console.warn("Play failed after unmute, retrying:", error);
+                                videoEl.play();
+                                muteBtn.style.display = 'none';
+                            });
+                        } else {
+                            muteBtn.style.display = 'none';
+                        }
                     };
                     container.appendChild(muteBtn);
                     card.appendChild(container);
                 }
             }
-            card.innerHTML += `<div class="info-box"><div class="info-title">💡 Información Importante</div><p>${step.content || ''}</p></div>`;
+
+            const infoBox = document.createElement('div');
+            infoBox.className = 'info-box';
+            const infoTitle = document.createElement('div');
+            infoTitle.className = 'info-title';
+            infoTitle.textContent = '💡 Información Importante';
+            const infoText = document.createElement('p');
+            infoText.textContent = step.content || '';
+            infoBox.appendChild(infoTitle);
+            infoBox.appendChild(infoText);
+            card.appendChild(infoBox);
+
             const nextBtn = document.createElement('button');
             nextBtn.className = 'btn-primary';
             nextBtn.textContent = step.buttonText || 'Continuar';
@@ -460,7 +487,12 @@ function renderStep() {
 
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
-                    videoEl.play().catch(() => { }); // Attempt autoplay, ignore errors if blocked
+                    videoEl.muted = true;
+                    // For the final VSL, we don't reset currentTime if already prebuffered well, but load() helps
+                    videoEl.load();
+                    setTimeout(() => {
+                        videoEl.play().catch(() => { });
+                    }, 100);
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -469,8 +501,18 @@ function renderStep() {
                     muteBtn.onclick = () => {
                         videoEl.muted = false;
                         videoEl.volume = 1.0;
-                        videoEl.play().catch(e => console.warn('Manual play failed:', e));
-                        muteBtn.style.display = 'none';
+                        const playPromise = videoEl.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                muteBtn.style.display = 'none';
+                            }).catch(error => {
+                                console.warn("Play failed after unmute, retrying:", error);
+                                videoEl.play();
+                                muteBtn.style.display = 'none';
+                            });
+                        } else {
+                            muteBtn.style.display = 'none';
+                        }
                     };
                     container.appendChild(muteBtn);
                     card.appendChild(container);
