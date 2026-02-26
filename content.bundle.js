@@ -105,18 +105,7 @@ const steps = [
         id: 'social_proof_1',
         type: 'info',
         title: 'No estás sola',
-        videoEmbed: `<div style="position:relative; width:100%; height:100%;">
-                        <video id="vid-motivacao" width="100%" height="auto" autoplay muted playsinline preload="auto" style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
-                            <source src="motivacao.mp4" type="video/mp4">
-                        </video>
-                        <button onclick="const v = document.getElementById('vid-motivacao'); if(v) { v.muted = false; v.volume = 1.0; v.play().catch(e => console.warn('Playback failed:', e)); this.style.display = 'none'; }" 
-                                style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
-                                       background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
-                                       border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 
-                                       box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); display:flex; align-items:center; gap:10px; font-size:1.1rem; white-space:nowrap;">
-                            🔊 ACTIVAR SONIDO
-                        </button>
-                     </div>`,
+        videoEmbed: `motivacao-preloaded`,
         delayBtn: 15000,
         content: 'Más de 47.000 personas ya han transformado sus vidas con este método. El 72% logró reducir 2 tallas de ropa en los primeiros 3 meses.',
         buttonText: '¡Quiero ser parte de esto!'
@@ -259,18 +248,7 @@ const steps = [
         id: 'result_ready',
         type: 'final_result',
         title: '¡Todo listo!',
-        videoEmbed: `<div style="position:relative; width:100%; height:100%;">
-                        <video id="vid-vsl" width="100%" height="auto" autoplay muted playsinline preload="auto" style="border-radius:var(--border-radius); width:100%; height:100%; object-fit:contain;">
-                            <source src="vsl.mp4" type="video/mp4">
-                        </video>
-                        <button onclick="const v = document.getElementById('vid-vsl'); if(v) { v.muted = false; v.volume = 1.0; v.play().catch(e => console.warn('Playback failed:', e)); this.style.display = 'none'; }" 
-                                style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10; 
-                                       background:rgba(16, 185, 129, 0.9); color:white; border:none; padding:15px 30px; 
-                                       border-radius:50px; font-weight:700; cursor:pointer; font-family:inherit; 
-                                       box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); display:flex; align-items:center; gap:10px; font-size:1.1rem; white-space:nowrap;">
-                            🔊 ACTIVAR SONIDO
-                        </button>
-                     </div>`,
+        videoEmbed: `vsl-preloaded`,
         content: 'Descubrimos exactamente lo que estaba impidiendo tu adelgazamiento. Tu perfil metabólico es perfectamente compatible con el AYUNO RESET - metabólico 360.',
         buttonText: 'QUIERO ACCEDER AHORA',
         delayBtn: 15000
@@ -319,6 +297,16 @@ function updateProgress() {
 function renderStep() {
     try {
         if (!contentContainer) return;
+
+        // Move preloaded videos back to background manager before clearing to save buffer
+        const bgManager = document.getElementById('video-background-manager');
+        if (bgManager) {
+            document.querySelectorAll('video[id$="-preloaded"]').forEach(vid => {
+                vid.style.display = 'none';
+                bgManager.appendChild(vid);
+            });
+        }
+
         contentContainer.innerHTML = '';
 
         if (!steps || !steps[currentStepIndex]) return;
@@ -412,8 +400,31 @@ function renderStep() {
             card.appendChild(form);
             card.appendChild(nextBtn);
         } else if (step.type === 'info') {
-            const videoHTML = step.videoEmbed ? `<div class=\"video-container\">${step.videoEmbed}</div>` : '';
-            card.innerHTML += `${videoHTML} <div class=\"info-box\"> <div class=\"info-title\">💡 Información Importante</div> <p>${step.content || ''}</p> </div>`;
+            if (step.videoEmbed) {
+                const videoEl = document.getElementById(step.videoEmbed);
+                if (videoEl) {
+                    const container = document.createElement('div');
+                    container.className = 'video-container';
+                    container.style.position = 'relative';
+
+                    videoEl.style.display = 'block';
+                    videoEl.autoplay = true;
+                    videoEl.play();
+                    container.appendChild(videoEl);
+
+                    const muteBtn = document.createElement('button');
+                    muteBtn.className = 'btn-unmute-overlay'; // Design specific
+                    muteBtn.innerHTML = '🔊 ACTIVAR SONIDO';
+                    muteBtn.onclick = () => {
+                        videoEl.muted = false;
+                        videoEl.volume = 1.0;
+                        muteBtn.style.display = 'none';
+                    };
+                    container.appendChild(muteBtn);
+                    card.appendChild(container);
+                }
+            }
+            card.innerHTML += `<div class="info-box"><div class="info-title">💡 Información Importante</div><p>${step.content || ''}</p></div>`;
             const nextBtn = document.createElement('button');
             nextBtn.className = 'btn-primary';
             nextBtn.textContent = step.buttonText || 'Continuar';
@@ -433,8 +444,42 @@ function renderStep() {
             const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
             const status = bmi < 18.5 ? "Bajo peso" : bmi < 25 ? "Peso normal" : bmi < 30 ? "Sobrepeso" : "Obesidad";
 
-            const videoHTML = step.videoEmbed ? `<div class=\"video-container\">${step.videoEmbed}</div>` : '';
-            card.innerHTML = `<h2 class=\"step-title\" style=\"color:var(--primary);\">${step.title || '¡Listo!'}</h2> ${videoHTML} <div class=\"info-box\" style=\"margin-bottom: 20px;\"> <h3>Tu IMC es ${bmi} (${status})</h3> <p>Esto confirma que tu metabolismo necesita un protocolo específico para volver a activarse correctamente.</p> </div>`;
+            const title = document.createElement('h2');
+            title.className = 'step-title';
+            title.style.color = 'var(--primary)';
+            title.textContent = step.title || '¡Listo!';
+            card.appendChild(title);
+
+            if (step.videoEmbed) {
+                const videoEl = document.getElementById(step.videoEmbed);
+                if (videoEl) {
+                    const container = document.createElement('div');
+                    container.className = 'video-container';
+                    container.style.position = 'relative';
+
+                    videoEl.style.display = 'block';
+                    videoEl.autoplay = true;
+                    videoEl.play();
+                    container.appendChild(videoEl);
+
+                    const muteBtn = document.createElement('button');
+                    muteBtn.className = 'btn-unmute-overlay';
+                    muteBtn.innerHTML = '🔊 ACTIVAR SONIDO';
+                    muteBtn.onclick = () => {
+                        videoEl.muted = false;
+                        videoEl.volume = 1.0;
+                        muteBtn.style.display = 'none';
+                    };
+                    container.appendChild(muteBtn);
+                    card.appendChild(container);
+                }
+            }
+
+            const infoBox = document.createElement('div');
+            infoBox.className = 'info-box';
+            infoBox.style.marginBottom = '20px';
+            infoBox.innerHTML = `<h3>Tu IMC es ${bmi} (${status})</h3><p>Esto confirma que tu metabolismo necesita un protocolo específico para volver a activarse correctamente.</p>`;
+            card.appendChild(infoBox);
 
             const finalBtn = document.createElement('button');
             finalBtn.className = 'btn-primary';

@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:,">
+    <!-- Preload critical videos for instant playback -->
+    <link rel="preload" href="vsl.mp4" as="video" type="video/mp4">
+    <link rel="preload" href="motivacao.mp4" as="video" type="video/mp4">
     <!-- Google Analytics (Tag Manager) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171466423-1"></script>
     <script>
@@ -38,6 +41,14 @@
         <main id="quiz-content" class="quiz-content">
             <!-- Dynamic Content -->
         </main>
+    </div>
+    <div id="video-background-manager" style="display:none;">
+        <video id="vsl-preloaded" muted playsinline preload="auto">
+            <source src="vsl.mp4" type="video/mp4">
+        </video>
+        <video id="motivacao-preloaded" muted playsinline preload="auto">
+            <source src="motivacao.mp4" type="video/mp4">
+        </video>
     </div>
     <script src="utils.js"></script>
     <script type="module" src="analytics.js"></script>
