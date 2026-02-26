@@ -363,7 +363,7 @@
 
         .audio-progress-bg {
             width: 100%;
-            height: 5px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
@@ -503,7 +503,6 @@
                         <div class="audio-content">
                             <div class="audio-meta">
                                 <span class="audio-filename">Audio_Verificado_Alumna.mp3</span>
-                                <span class="audio-time" id="audioTime">00:00 / 00:00</span>
                             </div>
                             <div class="audio-progress-bg">
                                 <div class="audio-progress-fill" id="audioProgress"></div>
@@ -899,38 +898,21 @@
             }
 
             if (audio) {
-                const updateTimer = () => {
-                    const current = formatTime(audio.currentTime);
-                    // Fallback to 0 if duration is Infinity or NaN (stream issue)
-                    const total = (audio.duration && isFinite(audio.duration)) ? formatTime(audio.duration) : "--:--";
-                    if (audioTime) audioTime.textContent = `${current} / ${total}`;
-                };
-
-                // Specific fix: some browsers only provide duration after the first bit is played
-                audio.addEventListener('durationchange', updateTimer);
-                audio.addEventListener('progress', updateTimer);
-                audio.addEventListener('canplay', updateTimer);
-
                 audio.addEventListener('timeupdate', () => {
-                    updateTimer();
                     const progress = (audio.currentTime / audio.duration) * 100;
                     if (audioProgress) audioProgress.style.width = `${progress}%`;
                 });
 
                 audio.addEventListener('ended', () => {
                     if (audioIcon) audioIcon.className = 'fas fa-play';
-                    if (audioProgress) audioProgress.style.width = '0%';
-                    updateTimer();
+                    if (audioProgress) audioProgress.style.width = '100%';
+                    setTimeout(() => { if (audioProgress) audioProgress.style.width = '0%'; }, 500);
                 });
 
                 if (audioBtn) {
                     audioBtn.addEventListener('click', () => {
                         if (audio.paused) {
-                            // Force a re-calculation of duration on click in case loadedmetadata didn't fire
-                            updateTimer();
-                            audio.play().then(() => {
-                                updateTimer(); // Update again once playing starts
-                            }).catch(e => console.warn("Audio play blocked:", e));
+                            audio.play().catch(e => console.warn("Audio play blocked:", e));
                             if (audioIcon) audioIcon.className = 'fas fa-pause';
                         } else {
                             audio.pause();
@@ -938,9 +920,6 @@
                         }
                     });
                 }
-
-                // Initial load check
-                if (audio.readyState >= 1) updateTimer();
             }
         } catch (err) {
             console.error("Critical error in checkout script:", err);

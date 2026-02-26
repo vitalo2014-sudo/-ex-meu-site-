@@ -411,11 +411,16 @@ function renderStep() {
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
                     videoEl.muted = true;
-                    videoEl.currentTime = 0; // Force reset for Step 7 to ensure it's at the start
-                    videoEl.load(); // Force re-fetch of buffer if needed
-                    setTimeout(() => {
-                        videoEl.play().catch(() => { });
-                    }, 50);
+
+                    const startPreview = () => {
+                        if (videoEl.readyState >= 3) {
+                            videoEl.play().catch(() => { });
+                        } else {
+                            videoEl.addEventListener('canplay', () => videoEl.play().catch(() => { }), { once: true });
+                        }
+                    };
+
+                    startPreview();
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -488,11 +493,17 @@ function renderStep() {
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
                     videoEl.muted = true;
-                    // Pre-buffer is preserved by NOT calling .load() here
-                    setTimeout(() => {
-                        const p = videoEl.play();
-                        if (p !== undefined) p.catch(() => { });
-                    }, 50);
+
+                    // Critical: Do NOT call load() or change src here to avoid losing 57MB buffer
+                    const forcePlayVSL = () => {
+                        if (videoEl.readyState >= 3) {
+                            videoEl.play().catch(() => { });
+                        } else {
+                            videoEl.addEventListener('canplaythrough', () => videoEl.play().catch(() => { }), { once: true });
+                        }
+                    };
+
+                    setTimeout(forcePlayVSL, 100);
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -501,12 +512,14 @@ function renderStep() {
                     muteBtn.onclick = () => {
                         videoEl.muted = false;
                         videoEl.volume = 1.0;
-                        const playPromise = videoEl.play();
-                        if (playPromise !== undefined) {
-                            playPromise.then(() => {
+
+                        // Extra insurance: explicitly play again on interaction to bypass stutters
+                        const playReq = videoEl.play();
+                        if (playReq !== undefined) {
+                            playReq.then(() => {
                                 muteBtn.style.display = 'none';
-                            }).catch(error => {
-                                console.warn("Play failed after unmute, retrying:", error);
+                            }).catch(err => {
+                                console.warn("Retry play failed:", err);
                                 videoEl.play();
                                 muteBtn.style.display = 'none';
                             });
