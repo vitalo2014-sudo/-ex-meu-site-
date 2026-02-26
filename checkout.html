@@ -901,11 +901,15 @@
             if (audio) {
                 const updateTimer = () => {
                     const current = formatTime(audio.currentTime);
-                    const total = formatTime(audio.duration);
+                    // Fallback to 0 if duration is Infinity or NaN (stream issue)
+                    const total = (audio.duration && isFinite(audio.duration)) ? formatTime(audio.duration) : "--:--";
                     if (audioTime) audioTime.textContent = `${current} / ${total}`;
                 };
 
-                audio.addEventListener('loadedmetadata', updateTimer);
+                // Specific fix: some browsers only provide duration after the first bit is played
+                audio.addEventListener('durationchange', updateTimer);
+                audio.addEventListener('progress', updateTimer);
+                audio.addEventListener('canplay', updateTimer);
 
                 audio.addEventListener('timeupdate', () => {
                     updateTimer();
@@ -922,7 +926,11 @@
                 if (audioBtn) {
                     audioBtn.addEventListener('click', () => {
                         if (audio.paused) {
-                            audio.play().catch(e => console.warn("Audio play blocked:", e));
+                            // Force a re-calculation of duration on click in case loadedmetadata didn't fire
+                            updateTimer();
+                            audio.play().then(() => {
+                                updateTimer(); // Update again once playing starts
+                            }).catch(e => console.warn("Audio play blocked:", e));
                             if (audioIcon) audioIcon.className = 'fas fa-pause';
                         } else {
                             audio.pause();
