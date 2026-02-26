@@ -488,11 +488,11 @@ function renderStep() {
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
                     videoEl.muted = true;
-                    // For the final VSL, we don't reset currentTime if already prebuffered well, but load() helps
-                    videoEl.load();
+                    // Pre-buffer is preserved by NOT calling .load() here
                     setTimeout(() => {
-                        videoEl.play().catch(() => { });
-                    }, 100);
+                        const p = videoEl.play();
+                        if (p !== undefined) p.catch(() => { });
+                    }, 50);
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');

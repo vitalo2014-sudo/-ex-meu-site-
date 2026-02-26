@@ -8,6 +8,15 @@
                     "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://pay.hotmart.com https://*.hotmart.com https://kit.fontawesome.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com https://*.y.uno https://*.ebanx.com https://*.paypal.com https://*.paypalobjects.com https://*.dlocal.com https://*.worldpay.com https://*.payulatam.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://*.hotmart.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com https://ui-avatars.com https://*.hotmart.com https://*.paypalobjects.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://www.gstatic.com https://pay.hotmart.com https://*.hotmart.com https://*.auth.hotmart.com https://*.y.uno https://*.ebanx.com https://*.paypal.com https://*.dlocal.com https://*.worldpay.com https://*.payulatam.com; frame-src 'self' https://pay.hotmart.com https://*.hotmart.com https://*.paypal.com https://*.y.uno; upgrade-insecure-requests;"
                 }
             ]
+        },
+        {
+            "source": "/(.*).(mp4|mp3|jpg|png|gif|css|js)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
         }
     ]
 }
