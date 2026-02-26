@@ -409,7 +409,7 @@ function renderStep() {
 
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
-                    videoEl.play();
+                    videoEl.play().catch(() => { }); // Attempt autoplay, ignore errors if blocked
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -418,6 +418,7 @@ function renderStep() {
                     muteBtn.onclick = () => {
                         videoEl.muted = false;
                         videoEl.volume = 1.0;
+                        videoEl.play().catch(e => console.warn('Manual play failed:', e));
                         muteBtn.style.display = 'none';
                     };
                     container.appendChild(muteBtn);
@@ -459,7 +460,7 @@ function renderStep() {
 
                     videoEl.style.display = 'block';
                     videoEl.autoplay = true;
-                    videoEl.play();
+                    videoEl.play().catch(() => { }); // Attempt autoplay, ignore errors if blocked
                     container.appendChild(videoEl);
 
                     const muteBtn = document.createElement('button');
@@ -468,6 +469,7 @@ function renderStep() {
                     muteBtn.onclick = () => {
                         videoEl.muted = false;
                         videoEl.volume = 1.0;
+                        videoEl.play().catch(e => console.warn('Manual play failed:', e));
                         muteBtn.style.display = 'none';
                     };
                     container.appendChild(muteBtn);
